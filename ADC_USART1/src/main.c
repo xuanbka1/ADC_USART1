@@ -18,13 +18,14 @@
  USART_SendText(USART1, "\n\r");
  */
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x.h"
-#include "Usart.h"
-//#include "ADC.h"
 #include <stdio.h>
-#include "SysTick.h"
-#include "string.h"
+#include <string.h>
 
+#include "stm32f10x.h"
+#include "stm32f10x_conf.h"
+#include "Usart.h"
+#include "ADC.h"
+#include "SysTick.h"
 #define ADC1_DR_Address    ((u32)0x4001244C)
 volatile uint16_t ADCValue;
 /* Private function prototypes -----------------------------------------------*/
