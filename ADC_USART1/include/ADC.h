@@ -1,7 +1,8 @@
 #ifndef __ADC_H
 #define __ADC_H
 #include <stdio.h>
-#include <stm32f10x.h>
+#include "stm32f10x.h"
+#include "stm32f10x_conf.h"
 
 //++++++++++++++++++++++++++++  ADC1   ++++++++++++++++++++++++++++
 //#define ADC1_DR_ADDR    ((u32)0x4001244C)
