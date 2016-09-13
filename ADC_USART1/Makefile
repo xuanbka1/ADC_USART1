@@ -136,6 +136,9 @@ $(PROJ_NAME).elf: $(SOURCES)
 	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
 	$(SIZE) $(PROJ_NAME).elf
 
+write:
+	stm32flash -w $(PROJ_NAME).hex -v -g 0x08000000 /dev/ttyUSB0
+
 #program: proj
 #	openocd -f $(OPENOCD_BOARD_DIR)/stm32f0discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
 
