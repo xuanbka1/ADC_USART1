@@ -3,7 +3,7 @@
 # family of ARM processors. This file should be placed in the example/demo
 # directory that you wish to compile.
 #
-# INCLUDEDIRS selects all folders in the package that have header files. Since
+# INCLUDEDIRS selects all DIRs in the package that have header files. Since
 #             this is already an inclusive list, it should not need editing.
 #
 # LIBSOURCES contains all the Driver (HAL/BSP) files that need to be compiled
@@ -38,6 +38,8 @@ OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 MAKE = make
 
+DIR = .
+
 # location of OpenOCD Board .cfg files (only used with 'make program')
 # OPENOCD_BOARD_DIR=/usr/share/openocd/scripts/board
 OPENOCD_BOARD_DIR=/usr/local/share/openocd/scripts/board
@@ -52,9 +54,9 @@ CPU_MODEL_GENERAL = STM32F103xE
 CPU_MODEL_SPECIFIC = STM32F103VE
 
 INCLUDEDIRS =
-INCLUDEDIRS += include
-INCLUDEDIRS += system/include/stm32f1-stdperiph
-INCLUDEDIRS += system/include/cmsis
+INCLUDEDIRS += $(DIR)/include
+INCLUDEDIRS += $(DIR)/system/include/stm32f1-stdperiph
+INCLUDEDIRS += $(DIR)/system/include/cmsis
 #INCLUDEDIRS += Drivers/CMSIS/Device/ST/STM32F1xx/Include
 
 # -lc      : link to standard C library ( stdio.h and stdlib.h)
@@ -74,13 +76,13 @@ INCLUDEDIRS += system/include/cmsis
 #            must be added to the linker
 #            Since 4.8, recommended -specs=rdimon.specs instead
 LIBSOURCES =
-LIBSOURCES += system/src/stm32f1-stdperiph/misc.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_adc.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_dma.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_rcc.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_tim.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_gpio.c
-LIBSOURCES += system/src/stm32f1-stdperiph/stm32f10x_usart.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/misc.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_adc.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_dma.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_rcc.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_tim.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_gpio.c
+LIBSOURCES += $(DIR)/system/src/stm32f1-stdperiph/stm32f10x_usart.c
 
 
 LIBOBJS = $(LIBSOURCES:.c=.o)
@@ -88,14 +90,14 @@ LIBOBJS = $(LIBSOURCES:.c=.o)
 ################################################################################
 # auto-generated project paths
 # SOURCES = main.c ADC.c SysTick.c Usart.c
-SOURCES = $(shell find src -name *.c)
-SOURCES += system/src/cmsis/system_stm32f10x.c
-SOURCES += system/src/cmsis/startup_stm32f10x_hd.s # add assembly startup template
+SOURCES = $(shell find $(DIR)/src -name *.c)
+SOURCES += $(DIR)/system/src/cmsis/system_stm32f10x.c
+SOURCES += $(DIR)/system/src/cmsis/startup_stm32f10x_hd.s # add assembly startup template
 
 OBJ1 = $(SOURCES:.c=.o)
 OBJ = $(OBJ1:.s=.o)
 
-LDSCRIPT = -Wl,-T STM32F103VE_FLASH.ld
+LDSCRIPT = -Wl,-T $(DIR)/STM32F103VE_FLASH.ld
 
 CFLAGS = -Wall -g -O0 -D $(CPU_MODEL_GENERAL) #-include stm32f1xx_hal_conf.h
 CFLAGS += -mlittle-endian -mcpu=cortex-m3 -march=armv7-m -mthumb -DUSE_STDPERIPH_DRIVER -DSTM32F10X_HD -DHSE_VALUE=8000000
@@ -113,7 +115,7 @@ proj: libstm32f1.a $(PROJ_NAME).elf
 
 libstm32f1.a: $(LIBOBJS)
 	@echo
-	$(AR) -r $@ $(LIBOBJS)
+	$(AR) -r $(DIR)/$@ $(LIBOBJS)
 
 %.o: %.c
 	@echo
@@ -130,14 +132,14 @@ $(PROJ_NAME).elf: $(SOURCES)
 #$(CC) $(CFLAGS) $^ -o $@ -L . -lstm32f1 $(LDSCRIPT) -MD
 	@echo
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBOBJS) $(LDSCRIPT) --specs=nano.specs --specs=rdimon.specs -lc -lm -lrdimon
-	rm $(LIBOBJS) || true
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
-	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
-	$(SIZE) $(PROJ_NAME).elf
+	rm $(DIR)/$(LIBOBJS) || true
+	$(OBJCOPY) -O ihex $(DIR)/$(PROJ_NAME).elf $(DIR)/$(PROJ_NAME).hex
+	$(OBJCOPY) -O binary $(DIR)/$(PROJ_NAME).elf $(DIR)/$(PROJ_NAME).bin
+	$(OBJDUMP) -St $(DIR)/$(PROJ_NAME).elf > $(DIR)/$(PROJ_NAME).lst
+	$(SIZE) $(DIR)/$(PROJ_NAME).elf
 
 write:
-	stm32flash -w $(PROJ_NAME).hex -v -g 0x08000000 /dev/ttyUSB0
+	stm32flash -w $(DIR)/$(PROJ_NAME).hex -v -g 0x08000000 /dev/ttyUSB0
 
 #program: proj
 #	openocd -f $(OPENOCD_BOARD_DIR)/stm32f0discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
@@ -146,11 +148,11 @@ write:
 #	openocd -f $(OPENOCD_BOARD_DIR)/stm32f0discovery.cfg -f $(OPENOCD_PROC_FILE)
 
 clean:
-	#rm $(LIBOBJS) || true
-	rm libstm32f1.a || true
-	rm $(PROJ_NAME).d   || true
-	rm $(PROJ_NAME).elf || true
-	rm $(PROJ_NAME).hex || true
-	rm $(PROJ_NAME).bin || true
-	rm $(PROJ_NAME).map || true
-	rm $(PROJ_NAME).lst || true
+	rm -f $(DIR)/libstm32f1.a
+	rm -f $(DIR)/$(LIBOBJS)
+	rm -f $(DIR)/$(PROJ_NAME).d
+	rm -f $(DIR)/$(PROJ_NAME).elf
+	rm -f $(DIR)/$(PROJ_NAME).hex
+	rm -f $(DIR)/$(PROJ_NAME).bin
+	rm -f $(DIR)/$(PROJ_NAME).map
+	rm -f $(DIR)/$(PROJ_NAME).lst
